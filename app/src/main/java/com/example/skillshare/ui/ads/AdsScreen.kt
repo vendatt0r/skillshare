@@ -7,11 +7,11 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
-import androidx.lifecycle.viewmodel.compose.viewModel
 
 @Composable
 fun AdsScreen(
-    viewModel: AdsViewModel = viewModel()
+    viewModel: AdsViewModel,
+    onCreateClick: () -> Unit
 ) {
     val ads = viewModel.ads
 
@@ -22,20 +22,10 @@ fun AdsScreen(
     ) {
 
         Button(
-            onClick = {
-                viewModel.addAd(
-                    Ad(
-                        id = System.currentTimeMillis(),
-                        title = "Новое объявление",
-                        description = "Описание нового объявления",
-                        city = "Москва",
-                        authorName = "Вы"
-                    )
-                )
-            },
+            onClick = onCreateClick,
             modifier = Modifier.fillMaxWidth()
         ) {
-            Text("Добавить объявление")
+            Text("Создать объявление")
         }
 
         Spacer(modifier = Modifier.height(16.dp))
