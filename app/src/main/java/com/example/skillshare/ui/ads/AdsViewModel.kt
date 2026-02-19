@@ -1,23 +1,39 @@
 package com.example.skillshare.ui.ads
 
-import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.ViewModelProvider
+import androidx.lifecycle.viewModelScope
+import kotlinx.coroutines.flow.SharingStarted
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.stateIn
+import kotlinx.coroutines.launch
 
+class AdsViewModel(private val repository: AdsRepository) : ViewModel() {
 
-class AdsViewModel : ViewModel() {
+    val ads: StateFlow<List<AdEntity>> =
+        repository.getAllAds()
+            .stateIn(
+                viewModelScope,
+                SharingStarted.Lazily,
+                emptyList()
+            )
 
-    private val _ads = mutableStateOf(
-        listOf(
-            Ad(1, "Урок английского", "Помогу подтянуть разговорный английский", "Москва", "Алексей"),
-            Ad(2, "Ремонт компьютера", "Почищу ноутбук, переустановлю Windows", "Санкт-Петербург", "Иван"),
-            Ad(3, "Дизайн логотипа", "Сделаю простой логотип", "Казань", "Мария")
-        )
-    )
+    fun addAd(ad: AdEntity) {
+        viewModelScope.launch {
+            repository.addAd(ad)
+        }
+    }
+}
 
-    val ads: List<Ad>
-        get() = _ads.value
+class AdsViewModelFactory(
+    private val repository: AdsRepository
+) : ViewModelProvider.Factory {
 
-    fun addAd(ad: Ad) {
-        _ads.value = _ads.value + ad
+    override fun <T : ViewModel> create(modelClass: Class<T>): T {
+        if (modelClass.isAssignableFrom(AdsViewModel::class.java)) {
+            @Suppress("UNCHECKED_CAST")
+            return AdsViewModel(repository) as T
+        }
+        throw IllegalArgumentException("Unknown ViewModel class")
     }
 }

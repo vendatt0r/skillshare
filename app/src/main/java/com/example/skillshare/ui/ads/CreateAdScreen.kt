@@ -8,7 +8,7 @@ import androidx.compose.ui.unit.dp
 
 @Composable
 fun CreateAdScreen(
-    onAdCreated: (Ad) -> Unit,
+    onAdCreated: (AdEntity) -> Unit,
     onBack: () -> Unit
 ) {
     var title by remember { mutableStateOf("") }
@@ -21,7 +21,10 @@ fun CreateAdScreen(
             .padding(16.dp)
     ) {
 
-        Text("Создание объявления", style = MaterialTheme.typography.headlineMedium)
+        Text(
+            "Создание объявления",
+            style = MaterialTheme.typography.headlineMedium
+        )
 
         Spacer(modifier = Modifier.height(16.dp))
 
@@ -54,8 +57,7 @@ fun CreateAdScreen(
 
         Button(
             onClick = {
-                val newAd = Ad(
-                    id = System.currentTimeMillis(),
+                val newAd = AdEntity(
                     title = title,
                     description = description,
                     city = city,

@@ -1,22 +1,35 @@
 package com.example.skillshare
 
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.remember
+import androidx.compose.ui.platform.LocalContext
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
-import com.example.skillshare.ui.ads.AdsScreen
-import com.example.skillshare.ui.ads.AdsViewModel
-import com.example.skillshare.ui.ads.CreateAdScreen
+import com.example.skillshare.ui.ads.*
 import com.example.skillshare.ui.auth.LoginScreen
 
 @Composable
 fun NavGraph() {
 
     val navController = rememberNavController()
+    val context = LocalContext.current
 
-    // 🔥 Создаём ViewModel ОДИН раз
-    val adsViewModel: AdsViewModel = viewModel()
+    // 🔥 Создаём базу
+    val database = remember {
+        AppDatabase.getDatabase(context)
+    }
+
+    // 🔥 Создаём repository
+    val repository = remember {
+        AdsRepository(database.adDao())
+    }
+
+    // 🔥 Создаём ViewModel через factory
+    val adsViewModel: AdsViewModel = viewModel(
+        factory = AdsViewModelFactory(repository)
+    )
 
     NavHost(
         navController = navController,
@@ -55,4 +68,3 @@ fun NavGraph() {
         }
     }
 }
-
