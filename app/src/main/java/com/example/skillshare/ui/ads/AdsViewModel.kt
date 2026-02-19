@@ -3,6 +3,7 @@ package com.example.skillshare.ui.ads
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
+import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.stateIn
@@ -26,6 +27,20 @@ class AdsViewModel(private val repository: AdsRepository) : ViewModel() {
     fun deleteAd(ad: AdEntity) {
         viewModelScope.launch {
             repository.deleteAd(ad)
+        }
+    }
+    private val _selectedAd = MutableStateFlow<AdEntity?>(null)
+    val selectedAd: StateFlow<AdEntity?> = _selectedAd
+
+    fun loadAd(id: Long) {
+        viewModelScope.launch {
+            _selectedAd.value = repository.getAdById(id)
+        }
+    }
+
+    fun updateAd(ad: AdEntity) {
+        viewModelScope.launch {
+            repository.updateAd(ad)
         }
     }
 }

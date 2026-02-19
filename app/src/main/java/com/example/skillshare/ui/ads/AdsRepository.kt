@@ -16,4 +16,11 @@ class AdsRepository(private val adDao: AdDao) {
     suspend fun deleteAd(ad: AdEntity) {
         adDao.deleteAd(ad)
     }
+    suspend fun getAdById(id: Long): AdEntity? {
+        return adDao.getAdById(id)
+    }
+
+    suspend fun updateAd(ad: AdEntity) {
+        adDao.updateAd(ad)
+    }
 }

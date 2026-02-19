@@ -12,7 +12,8 @@ import androidx.compose.runtime.getValue
 @Composable
 fun AdsScreen(
     viewModel: AdsViewModel,
-    onCreateClick: () -> Unit
+    onCreateClick: () -> Unit,
+    onEditClick: (Long) -> Unit // id объявления для редактирования
 ) {
     val ads by viewModel.ads.collectAsState()
 
@@ -35,7 +36,8 @@ fun AdsScreen(
             items(ads) { ad ->
                 AdItem(
                     ad = ad,
-                    onDelete = { viewModel.deleteAd(ad) }
+                    onDelete = { viewModel.deleteAd(ad) },
+                    onEdit = { onEditClick(ad.id) }
                 )
                 Spacer(modifier = Modifier.height(12.dp))
             }
@@ -46,7 +48,8 @@ fun AdsScreen(
 @Composable
 fun AdItem(
     ad: AdEntity,
-    onDelete: () -> Unit
+    onDelete: () -> Unit,
+    onEdit: () -> Unit
 ) {
     Card(
         modifier = Modifier.fillMaxWidth(),
@@ -75,6 +78,15 @@ fun AdItem(
                 modifier = Modifier.fillMaxWidth()
             ) {
                 Text("Удалить")
+            }
+
+            Spacer(modifier = Modifier.height(8.dp))
+
+            Button(
+                onClick = onEdit,
+                modifier = Modifier.fillMaxWidth()
+            ) {
+                Text("Редактировать")
             }
         }
     }
