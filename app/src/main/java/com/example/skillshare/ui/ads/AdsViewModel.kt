@@ -23,6 +23,11 @@ class AdsViewModel(private val repository: AdsRepository) : ViewModel() {
             repository.addAd(ad)
         }
     }
+    fun deleteAd(ad: AdEntity) {
+        viewModelScope.launch {
+            repository.deleteAd(ad)
+        }
+    }
 }
 
 class AdsViewModelFactory(

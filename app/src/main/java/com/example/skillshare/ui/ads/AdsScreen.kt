@@ -16,7 +16,6 @@ fun AdsScreen(
 ) {
     val ads by viewModel.ads.collectAsState()
 
-
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -34,7 +33,10 @@ fun AdsScreen(
 
         LazyColumn {
             items(ads) { ad ->
-                AdItem(ad)
+                AdItem(
+                    ad = ad,
+                    onDelete = { viewModel.deleteAd(ad) }
+                )
                 Spacer(modifier = Modifier.height(12.dp))
             }
         }
@@ -42,21 +44,38 @@ fun AdsScreen(
 }
 
 @Composable
-fun AdItem(ad: AdEntity) {
+fun AdItem(
+    ad: AdEntity,
+    onDelete: () -> Unit
+) {
     Card(
         modifier = Modifier.fillMaxWidth(),
         elevation = CardDefaults.cardElevation(4.dp)
     ) {
         Column(modifier = Modifier.padding(16.dp)) {
+
             Text(ad.title, style = MaterialTheme.typography.titleMedium)
             Spacer(modifier = Modifier.height(4.dp))
             Text(ad.description)
             Spacer(modifier = Modifier.height(8.dp))
+
             Text(
                 "${ad.city} • ${ad.authorName}",
                 style = MaterialTheme.typography.bodySmall,
                 color = MaterialTheme.colorScheme.primary
             )
+
+            Spacer(modifier = Modifier.height(12.dp))
+
+            Button(
+                onClick = onDelete,
+                colors = ButtonDefaults.buttonColors(
+                    containerColor = MaterialTheme.colorScheme.error
+                ),
+                modifier = Modifier.fillMaxWidth()
+            ) {
+                Text("Удалить")
+            }
         }
     }
 }

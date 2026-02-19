@@ -12,4 +12,8 @@ class AdsRepository(private val adDao: AdDao) {
     suspend fun addAd(ad: AdEntity) {
         adDao.insert(ad)
     }
+
+    suspend fun deleteAd(ad: AdEntity) {
+        adDao.deleteAd(ad)
+    }
 }
