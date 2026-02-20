@@ -6,11 +6,17 @@ import androidx.room.Room
 import androidx.room.RoomDatabase
 import com.example.skillshare.ui.ads.AdDao
 import com.example.skillshare.ui.ads.AdEntity
+import com.example.skillshare.ui.auth.User
+import com.example.skillshare.ui.auth.UserDao
 
-@Database(entities = [AdEntity::class], version = 1)
+@Database(
+    entities = [AdEntity::class, User::class],
+    version = 2
+)
 abstract class AppDatabase : RoomDatabase() {
 
     abstract fun adDao(): AdDao
+    abstract fun userDao(): UserDao
 
     companion object {
 
@@ -23,7 +29,10 @@ abstract class AppDatabase : RoomDatabase() {
                     context.applicationContext,
                     AppDatabase::class.java,
                     "skillshare_db"
-                ).build()
+                )
+                    .fallbackToDestructiveMigration() // чтобы не падала из-за версии
+                    .build()
+
                 INSTANCE = instance
                 instance
             }

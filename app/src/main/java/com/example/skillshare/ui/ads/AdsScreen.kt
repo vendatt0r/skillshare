@@ -9,11 +9,15 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.compose.runtime.getValue
+import com.example.skillshare.ui.auth.AuthViewModel
+
 @Composable
 fun AdsScreen(
     viewModel: AdsViewModel,
+    authViewModel: AuthViewModel,
+    onLogout: () -> Unit,
     onCreateClick: () -> Unit,
-    onEditClick: (Long) -> Unit // id объявления для редактирования
+    onEditClick: (Long) -> Unit
 ) {
     val ads by viewModel.ads.collectAsState()
 
@@ -22,6 +26,9 @@ fun AdsScreen(
             .fillMaxSize()
             .padding(16.dp)
     ) {
+
+
+        Spacer(modifier = Modifier.height(8.dp))
 
         Button(
             onClick = onCreateClick,

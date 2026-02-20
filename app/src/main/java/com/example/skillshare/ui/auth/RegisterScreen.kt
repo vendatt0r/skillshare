@@ -7,28 +7,22 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 
 @Composable
-fun LoginScreen(
+fun RegisterScreen(
     authViewModel: AuthViewModel,
-    onLoginSuccess: () -> Unit,
-    onRegisterClick: () -> Unit
+    onRegisterSuccess: () -> Unit,
+    onBack: () -> Unit
 ) {
-
     var username by remember { mutableStateOf("") }
     var password by remember { mutableStateOf("") }
-
     val authState by authViewModel.authState.collectAsState()
 
     Column(
         modifier = Modifier
             .fillMaxSize()
-            .padding(24.dp),
-        verticalArrangement = Arrangement.Center
+            .padding(16.dp)
     ) {
 
-        Text(
-            text = "Вход",
-            style = MaterialTheme.typography.headlineMedium
-        )
+        Text("Регистрация", style = MaterialTheme.typography.headlineMedium)
 
         Spacer(modifier = Modifier.height(16.dp))
 
@@ -51,29 +45,27 @@ fun LoginScreen(
         Spacer(modifier = Modifier.height(16.dp))
 
         Button(
-            onClick = {
-                authViewModel.login(username, password)
-            },
+            onClick = { authViewModel.register(username, password) },
             modifier = Modifier.fillMaxWidth()
         ) {
-            Text("Войти")
+            Text("Зарегистрироваться")
         }
 
         Spacer(modifier = Modifier.height(8.dp))
 
-        TextButton(onClick = onRegisterClick) {
-            Text("Регистрация")
+        TextButton(onClick = onBack) {
+            Text("Назад")
         }
 
         authState?.let { success ->
             if (success) {
                 LaunchedEffect(Unit) {
-                    onLoginSuccess()
+                    onRegisterSuccess()
                     authViewModel.reset()
                 }
             } else {
                 Text(
-                    "Неверный логин или пароль",
+                    "Пользователь уже существует",
                     color = MaterialTheme.colorScheme.error
                 )
             }
