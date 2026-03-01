@@ -23,4 +23,8 @@ class AdsRepository(private val adDao: AdDao) {
     suspend fun updateAd(ad: AdEntity) {
         adDao.updateAd(ad)
     }
+
+    fun getAdsByUser(userId: Long): Flow<List<AdEntity>> {
+        return adDao.getAdsByUser(userId)
+    }
 }

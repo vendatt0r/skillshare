@@ -8,6 +8,8 @@ import androidx.compose.ui.unit.dp
 
 @Composable
 fun CreateAdScreen(
+    currentUserId: Long,
+    currentUsername: String,
     onAdCreated: (AdEntity) -> Unit,
     onBack: () -> Unit
 ) {
@@ -61,7 +63,8 @@ fun CreateAdScreen(
                     title = title,
                     description = description,
                     city = city,
-                    authorName = "Вы"
+                    authorName = currentUsername,
+                    userId = currentUserId   // 👈 теперь передаём
                 )
                 onAdCreated(newAd)
             },

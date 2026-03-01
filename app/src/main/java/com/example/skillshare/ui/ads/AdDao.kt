@@ -23,4 +23,7 @@ interface AdDao {
 
     @Update
     suspend fun updateAd(ad: AdEntity)
+
+    @Query("SELECT * FROM ads WHERE userId = :userId ORDER BY id DESC")
+    fun getAdsByUser(userId: Long): Flow<List<AdEntity>>
 }

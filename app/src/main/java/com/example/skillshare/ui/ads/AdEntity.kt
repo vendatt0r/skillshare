@@ -12,5 +12,7 @@ data class AdEntity(
     val title: String,
     val description: String,
     val city: String,
-    val authorName: String
+    val authorName: String,
+
+    val userId: Long   // 👈 ВАЖНО
 )

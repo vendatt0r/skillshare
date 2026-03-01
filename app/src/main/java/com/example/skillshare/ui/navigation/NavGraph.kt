@@ -76,6 +76,7 @@ fun NavGraph() {
         // 🔥 MAIN (с нижней навигацией)
         composable("main") {
             MainScreen(
+                navController = navController,   // 👈 добавили
                 adsViewModel = adsViewModel,
                 authViewModel = authViewModel,
                 onLogout = {
@@ -88,7 +89,12 @@ fun NavGraph() {
 
         // Эти экраны можно оставить глобальными
         composable("createAd") {
+
+            val user = currentUser
+
             CreateAdScreen(
+                currentUserId = user?.id ?: 0L,
+                currentUsername = user?.username ?: "",
                 onAdCreated = { ad ->
                     adsViewModel.addAd(ad)
                     navController.popBackStack()

@@ -43,6 +43,14 @@ class AdsViewModel(private val repository: AdsRepository) : ViewModel() {
             repository.updateAd(ad)
         }
     }
+    fun getAdsByUser(userId: Long): StateFlow<List<AdEntity>> {
+        return repository.getAdsByUser(userId)
+            .stateIn(
+                viewModelScope,
+                SharingStarted.Lazily,
+                emptyList()
+            )
+    }
 }
 
 class AdsViewModelFactory(

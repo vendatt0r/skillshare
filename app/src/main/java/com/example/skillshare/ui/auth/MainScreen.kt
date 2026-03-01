@@ -21,6 +21,7 @@ import com.example.skillshare.ui.auth.ProfileScreen
 
 @Composable
 fun MainScreen(
+    navController: NavHostController,   // 👈 добавить
     adsViewModel: AdsViewModel,
     authViewModel: AuthViewModel,
     onLogout: () -> Unit
@@ -58,7 +59,9 @@ fun MainScreen(
                     viewModel = adsViewModel,
                     authViewModel = authViewModel,
                     onLogout = onLogout,
-                    onCreateClick = { },
+                    onCreateClick = {
+                        navController.navigate("createAd")
+                    },
                     onEditClick = { }
                 )
             }
@@ -66,6 +69,7 @@ fun MainScreen(
             composable("profile") {
                 ProfileScreen(
                     authViewModel = authViewModel,
+                    adsViewModel = adsViewModel,   // 👈 добавить
                     onLogout = onLogout
                 )
             }
