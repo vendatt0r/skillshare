@@ -11,7 +11,7 @@ import com.example.skillshare.ui.auth.UserDao
 
 @Database(
     entities = [AdEntity::class, User::class],
-    version = 3
+    version = 4
 )
 abstract class AppDatabase : RoomDatabase() {
 

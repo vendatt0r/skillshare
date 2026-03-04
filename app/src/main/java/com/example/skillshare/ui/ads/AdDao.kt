@@ -26,4 +26,12 @@ interface AdDao {
 
     @Query("SELECT * FROM ads WHERE userId = :userId ORDER BY id DESC")
     fun getAdsByUser(userId: Long): Flow<List<AdEntity>>
+
+    @Query("""
+    SELECT * FROM ads 
+    WHERE (:query IS NULL OR title LIKE '%' || :query || '%')
+    AND (:city IS NULL OR city LIKE '%' || :city || '%')
+    ORDER BY id DESC
+""")
+    fun searchAds(query: String?, city: String?): Flow<List<AdEntity>>
 }
