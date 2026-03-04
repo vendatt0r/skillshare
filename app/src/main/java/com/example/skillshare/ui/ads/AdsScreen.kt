@@ -1,5 +1,6 @@
 package com.example.skillshare.ui.ads
 
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
@@ -18,21 +19,20 @@ import com.example.skillshare.ui.auth.AuthViewModel
 fun AdsScreen(
     viewModel: AdsViewModel,
     authViewModel: AuthViewModel,
-    onLogout: () -> Unit,
     onCreateClick: () -> Unit,
-    onEditClick: (Long) -> Unit
+    onAdClick: (Long) -> Unit
 ) {
     val ads by viewModel.ads.collectAsState()
+
     var searchText by remember { mutableStateOf("") }
     var cityText by remember { mutableStateOf("") }
+
     Column(
         modifier = Modifier
             .fillMaxSize()
             .padding(16.dp)
     ) {
 
-
-        Spacer(modifier = Modifier.height(8.dp))
         OutlinedTextField(
             value = searchText,
             onValueChange = {
@@ -56,6 +56,7 @@ fun AdsScreen(
         )
 
         Spacer(modifier = Modifier.height(16.dp))
+
         Button(
             onClick = onCreateClick,
             modifier = Modifier.fillMaxWidth()
@@ -69,8 +70,7 @@ fun AdsScreen(
             items(ads) { ad ->
                 AdItem(
                     ad = ad,
-                    onDelete = { viewModel.deleteAd(ad) },
-                    onEdit = { onEditClick(ad.id) }
+                    onClick = { onAdClick(ad.id) }
                 )
                 Spacer(modifier = Modifier.height(12.dp))
             }
@@ -81,18 +81,22 @@ fun AdsScreen(
 @Composable
 fun AdItem(
     ad: AdEntity,
-    onDelete: () -> Unit,
-    onEdit: () -> Unit
+    onClick: () -> Unit
 ) {
     Card(
-        modifier = Modifier.fillMaxWidth(),
+        modifier = Modifier
+            .fillMaxWidth()
+            .clickable { onClick() },
         elevation = CardDefaults.cardElevation(4.dp)
     ) {
         Column(modifier = Modifier.padding(16.dp)) {
 
             Text(ad.title, style = MaterialTheme.typography.titleMedium)
+
             Spacer(modifier = Modifier.height(4.dp))
+
             Text(ad.description)
+
             Spacer(modifier = Modifier.height(8.dp))
 
             Text(
@@ -100,27 +104,6 @@ fun AdItem(
                 style = MaterialTheme.typography.bodySmall,
                 color = MaterialTheme.colorScheme.primary
             )
-
-            Spacer(modifier = Modifier.height(12.dp))
-
-            Button(
-                onClick = onDelete,
-                colors = ButtonDefaults.buttonColors(
-                    containerColor = MaterialTheme.colorScheme.error
-                ),
-                modifier = Modifier.fillMaxWidth()
-            ) {
-                Text("Удалить")
-            }
-
-            Spacer(modifier = Modifier.height(8.dp))
-
-            Button(
-                onClick = onEdit,
-                modifier = Modifier.fillMaxWidth()
-            ) {
-                Text("Редактировать")
-            }
         }
     }
 }

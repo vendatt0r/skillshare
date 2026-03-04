@@ -58,11 +58,12 @@ fun MainScreen(
                 AdsScreen(
                     viewModel = adsViewModel,
                     authViewModel = authViewModel,
-                    onLogout = onLogout,
                     onCreateClick = {
                         navController.navigate("createAd")
                     },
-                    onEditClick = { }
+                    onAdClick = { adId ->
+                        navController.navigate("adDetails/$adId")
+                    }
                 )
             }
 

@@ -125,5 +125,24 @@ fun NavGraph() {
                 }
             )
         }
+        composable("adDetails/{adId}") { backStackEntry ->
+
+            val adId = backStackEntry.arguments
+                ?.getString("adId")
+                ?.toLongOrNull() ?: 0L
+
+            LaunchedEffect(adId) {
+                adsViewModel.loadAd(adId)
+            }
+
+            AdDetailsScreen(
+                adsViewModel = adsViewModel,
+                authViewModel = authViewModel,
+                onBack = { navController.popBackStack() },
+                onEdit = {
+                    navController.navigate("editAd/$adId")
+                }
+            )
+        }
     }
 }
