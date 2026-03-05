@@ -8,16 +8,18 @@ import com.example.skillshare.ui.ads.AdDao
 import com.example.skillshare.ui.ads.AdEntity
 import com.example.skillshare.ui.auth.User
 import com.example.skillshare.ui.auth.UserDao
+import com.example.skillshare.ui.exchange.Exchange
+import com.example.skillshare.ui.exchange.ExchangeDao
 
 @Database(
-    entities = [AdEntity::class, User::class],
-    version = 15
+    entities = [AdEntity::class, User::class, Exchange::class],
+    version = 18
 )
 abstract class AppDatabase : RoomDatabase() {
 
     abstract fun adDao(): AdDao
     abstract fun userDao(): UserDao
-
+    abstract fun exchangeDao(): ExchangeDao
     companion object {
 
         @Volatile
