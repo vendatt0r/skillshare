@@ -5,6 +5,7 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
@@ -16,14 +17,18 @@ import com.example.skillshare.ui.ads.AdEntity
 fun ProfileScreen(
     authViewModel: AuthViewModel,
     adsViewModel: AdsViewModel,
-    onLogout: () -> Unit
+    onLogout: () -> Unit,
+    onEdit: (Long) -> Unit
 ) {
-    // Получаем текущего пользователя
-    val user by authViewModel.currentUser.collectAsState()
+    // Текущий пользователь
+    val currentUser by authViewModel.currentUser.collectAsState()
 
-    // Flow объявлений текущего пользователя
-    val userAdsFlow = adsViewModel.getAdsByUser(user?.id ?: -1L)
-    val userAds by userAdsFlow.collectAsState(initial = emptyList<AdEntity>())
+    // Устанавливаем профиль пользователя в AdsViewModel для корректной ленты
+    LaunchedEffect(currentUser?.id) {
+        adsViewModel.setProfileUser(currentUser?.id)
+    }
+    // Получаем объявления текущего пользователя
+    val userAds by adsViewModel.profileAds.collectAsState(initial = emptyList<AdEntity>())
 
     Column(
         modifier = Modifier
@@ -33,7 +38,7 @@ fun ProfileScreen(
         // Профиль
         Text("Профиль", style = MaterialTheme.typography.headlineMedium)
         Spacer(modifier = Modifier.height(16.dp))
-        Text("Имя пользователя: ${user?.username ?: "Неизвестно"}")
+        Text("Имя пользователя: ${currentUser?.username ?: "Неизвестно"}")
         Spacer(modifier = Modifier.height(16.dp))
 
         // Список объявлений
@@ -52,15 +57,30 @@ fun ProfileScreen(
                     elevation = CardDefaults.cardElevation(4.dp)
                 ) {
                     Column(modifier = Modifier.padding(12.dp)) {
+
                         Text(ad.title, style = MaterialTheme.typography.titleMedium)
+
                         Spacer(modifier = Modifier.height(4.dp))
+
                         Text(ad.description)
+
                         Spacer(modifier = Modifier.height(4.dp))
+
                         Text(
                             "${ad.city} • ${ad.authorName}",
                             style = MaterialTheme.typography.bodySmall,
                             color = MaterialTheme.colorScheme.primary
                         )
+
+                        Spacer(modifier = Modifier.height(8.dp))
+
+                        Row {
+                            TextButton(
+                                onClick = { onEdit(ad.id) }
+                            ) {
+                                Text("Редактировать")
+                            }
+                        }
                     }
                 }
             }
@@ -71,6 +91,7 @@ fun ProfileScreen(
         // Кнопка выхода
         Button(
             onClick = {
+                adsViewModel.clearProfileAds()
                 authViewModel.logout()
                 onLogout()
             },

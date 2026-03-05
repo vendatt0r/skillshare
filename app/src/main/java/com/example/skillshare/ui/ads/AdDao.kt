@@ -28,10 +28,28 @@ interface AdDao {
     fun getAdsByUser(userId: Long): Flow<List<AdEntity>>
 
     @Query("""
-    SELECT * FROM ads 
-    WHERE (:query IS NULL OR title LIKE '%' || :query || '%')
+    SELECT * FROM ads
+    WHERE userId != :currentUserId
+    AND (:query IS NULL OR title LIKE '%' || :query || '%')
     AND (:city IS NULL OR city LIKE '%' || :city || '%')
     ORDER BY id DESC
 """)
-    fun searchAds(query: String?, city: String?): Flow<List<AdEntity>>
+    fun searchAds(
+        currentUserId: Long,
+        query: String?,
+        city: String?
+    ): Flow<List<AdEntity>>
+
+    @Query("""
+    SELECT * FROM ads
+    WHERE (:currentUserId IS NULL OR userId != :currentUserId)
+      AND (:query IS NULL OR title LIKE '%' || :query || '%')
+      AND (:city IS NULL OR city LIKE '%' || :city || '%')
+    ORDER BY id DESC
+""")
+    fun searchAdsExcludingUser(
+        currentUserId: Long?,
+        query: String?,
+        city: String?
+    ): Flow<List<AdEntity>>
 }

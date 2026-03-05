@@ -24,12 +24,22 @@ class AuthViewModel(private val userDao: UserDao) : ViewModel() {
 
     fun register(username: String, password: String) {
         viewModelScope.launch {
+
             val exists = userDao.userExists(username) > 0
+
             if (!exists) {
-                val user = User(username = username, password = password)
-                userDao.insert(user)
-                _currentUser.value = user
+
+                val user = User(
+                    username = username,
+                    password = password
+                )
+
+                val id = userDao.insert(user)
+
+                _currentUser.value = user.copy(id = id)
+
                 _authState.value = true
+
             } else {
                 _authState.value = false
             }

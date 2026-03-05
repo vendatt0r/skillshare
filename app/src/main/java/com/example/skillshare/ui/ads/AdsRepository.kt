@@ -28,7 +28,18 @@ class AdsRepository(private val adDao: AdDao) {
         return adDao.getAdsByUser(userId)
     }
 
-    fun searchAds(query: String?, city: String?): Flow<List<AdEntity>> {
-        return adDao.searchAds(query, city)
+    fun searchAds(
+        currentUserId: Long,
+        query: String?,
+        city: String?
+    ): Flow<List<AdEntity>> {
+        return adDao.searchAds(currentUserId, query, city)
+    }
+    fun getAdsExcludingUser(
+        currentUserId: Long?,
+        query: String? = null,
+        city: String? = null
+    ): Flow<List<AdEntity>> {
+        return adDao.searchAdsExcludingUser(currentUserId, query, city)
     }
 }

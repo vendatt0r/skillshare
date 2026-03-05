@@ -8,30 +8,42 @@ import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.flatMapLatest
+import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 
 class AdsViewModel(private val repository: AdsRepository) : ViewModel() {
 
-    // 🔎 состояние поиска
     private val _searchQuery = MutableStateFlow<String?>(null)
     private val _cityFilter = MutableStateFlow<String?>(null)
+    private val _currentUserId = MutableStateFlow<Long?>(null)
+    private val _profileUserId = MutableStateFlow<Long?>(null)
 
-    // публичные геттеры (если понадобятся)
-    val searchQuery: StateFlow<String?> = _searchQuery
-    val cityFilter: StateFlow<String?> = _cityFilter
+    // Главная лента (исключаем текущего пользователя)
+    val mainAds: StateFlow<List<AdEntity>> = combine(
+        _searchQuery, _cityFilter, _currentUserId
+    ) { query, city, currentUserId ->
+        Triple(query, city, currentUserId)
+    }.flatMapLatest { (query, city, currentUserId) ->
+        repository.getAdsExcludingUser(currentUserId, query, city)
+    }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), emptyList())
 
-    // 🔥 главный поток объявлений с поиском
-    val ads: StateFlow<List<AdEntity>> =
-        combine(_searchQuery, _cityFilter) { query, city ->
-            query to city
-        }.flatMapLatest { (query, city) ->
-            repository.searchAds(query, city)
-        }.stateIn(
-            viewModelScope,
-            SharingStarted.Lazily,
-            emptyList()
-        )
+    // Лента для профиля конкретного пользователя
+    val profileAds: StateFlow<List<AdEntity>> = _profileUserId.flatMapLatest { userId ->
+        if (userId == null) flowOf(emptyList())
+        else repository.getAdsByUser(userId)
+    }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), emptyList())
+
+    private val _selectedAd = MutableStateFlow<AdEntity?>(null)
+    val selectedAd: StateFlow<AdEntity?> = _selectedAd
+
+    fun setCurrentUser(userId: Long?) {
+        _currentUserId.value = userId
+    }
+
+    fun setProfileUser(userId: Long?) {
+        _profileUserId.value = userId
+    }
 
     fun updateSearchQuery(query: String?) {
         _searchQuery.value = query
@@ -41,40 +53,12 @@ class AdsViewModel(private val repository: AdsRepository) : ViewModel() {
         _cityFilter.value = city
     }
 
-    fun addAd(ad: AdEntity) {
-        viewModelScope.launch {
-            repository.addAd(ad)
-        }
-    }
-
-    fun deleteAd(ad: AdEntity) {
-        viewModelScope.launch {
-            repository.deleteAd(ad)
-        }
-    }
-
-    private val _selectedAd = MutableStateFlow<AdEntity?>(null)
-    val selectedAd: StateFlow<AdEntity?> = _selectedAd
-
-    fun loadAd(id: Long) {
-        viewModelScope.launch {
-            _selectedAd.value = repository.getAdById(id)
-        }
-    }
-
-    fun updateAd(ad: AdEntity) {
-        viewModelScope.launch {
-            repository.updateAd(ad)
-        }
-    }
-
-    fun getAdsByUser(userId: Long): StateFlow<List<AdEntity>> {
-        return repository.getAdsByUser(userId)
-            .stateIn(
-                viewModelScope,
-                SharingStarted.Lazily,
-                emptyList()
-            )
+    fun addAd(ad: AdEntity) = viewModelScope.launch { repository.addAd(ad) }
+    fun deleteAd(ad: AdEntity) = viewModelScope.launch { repository.deleteAd(ad) }
+    fun loadAd(id: Long) = viewModelScope.launch { _selectedAd.value = repository.getAdById(id) }
+    fun updateAd(ad: AdEntity) = viewModelScope.launch { repository.updateAd(ad) }
+    fun clearProfileAds() {
+        _profileUserId.value = null
     }
 }
 

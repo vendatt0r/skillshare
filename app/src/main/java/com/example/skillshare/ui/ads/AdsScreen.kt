@@ -6,6 +6,7 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
@@ -22,17 +23,15 @@ fun AdsScreen(
     onCreateClick: () -> Unit,
     onAdClick: (Long) -> Unit
 ) {
-    val ads by viewModel.ads.collectAsState()
-
+    val currentUser by authViewModel.currentUser.collectAsState()
+    val ads by viewModel.mainAds.collectAsState()
+    LaunchedEffect(currentUser) {
+        viewModel.setCurrentUser(currentUser?.id)
+    }
     var searchText by remember { mutableStateOf("") }
     var cityText by remember { mutableStateOf("") }
 
-    Column(
-        modifier = Modifier
-            .fillMaxSize()
-            .padding(16.dp)
-    ) {
-
+    Column(modifier = Modifier.fillMaxSize().padding(16.dp)) {
         OutlinedTextField(
             value = searchText,
             onValueChange = {
@@ -57,10 +56,7 @@ fun AdsScreen(
 
         Spacer(modifier = Modifier.height(16.dp))
 
-        Button(
-            onClick = onCreateClick,
-            modifier = Modifier.fillMaxWidth()
-        ) {
+        Button(onClick = onCreateClick, modifier = Modifier.fillMaxWidth()) {
             Text("Создать объявление")
         }
 
@@ -68,10 +64,7 @@ fun AdsScreen(
 
         LazyColumn {
             items(ads) { ad ->
-                AdItem(
-                    ad = ad,
-                    onClick = { onAdClick(ad.id) }
-                )
+                AdItem(ad = ad, onClick = { onAdClick(ad.id) })
                 Spacer(modifier = Modifier.height(12.dp))
             }
         }

@@ -37,7 +37,9 @@ fun NavGraph() {
 
     // 🔥 Следим за текущим пользователем
     val currentUser by authViewModel.currentUser.collectAsState()
-
+    LaunchedEffect(currentUser?.id) {
+        adsViewModel.setCurrentUser(currentUser?.id)
+    }
     NavHost(
         navController = navController,
         startDestination = if (currentUser == null) "login" else "main"

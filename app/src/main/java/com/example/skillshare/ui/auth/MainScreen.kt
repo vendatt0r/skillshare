@@ -70,8 +70,11 @@ fun MainScreen(
             composable("profile") {
                 ProfileScreen(
                     authViewModel = authViewModel,
-                    adsViewModel = adsViewModel,   // 👈 добавить
-                    onLogout = onLogout
+                    adsViewModel = adsViewModel,
+                    onLogout = onLogout,
+                    onEdit = { adId ->
+                        navController.navigate("editAd/$adId")
+                    }
                 )
             }
         }
