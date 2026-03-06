@@ -16,6 +16,7 @@ data class Exchange(
 enum class ExchangeStatus {
     PENDING,
     ACCEPTED,
+    COMPLETING, // 🔹 новый статус: один участник нажал "Завершить"
     COMPLETED,
     CANCELLED
 }
