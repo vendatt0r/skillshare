@@ -20,19 +20,35 @@ class ExchangeViewModel(private val repository: ExchangeRepository) : ViewModel(
     }
 
     fun proposeExchange(adId: Long, fromUserId: Long, toUserId: Long) = viewModelScope.launch {
-        val exchange = Exchange(adId = adId, fromUserId = fromUserId, toUserId = toUserId)
+        val exchange = Exchange(
+            adId = adId,
+            fromUserId = fromUserId,
+            toUserId = toUserId
+        )
         repository.proposeExchange(exchange)
     }
 
-    fun acceptExchange(exchange: Exchange) = viewModelScope.launch {
-        repository.updateExchange(exchange.copy(status = ExchangeStatus.ACCEPTED))
+    fun acceptExchange(exchange: Exchange, userId: Long) = viewModelScope.launch {
+        repository.updateExchange(
+            exchange.copy(status = ExchangeStatus.ACCEPTED)
+        )
+
+        loadUserExchanges(userId) // 🔥 обновляем список
     }
 
-    fun completeExchange(exchange: Exchange) = viewModelScope.launch {
-        repository.updateExchange(exchange.copy(status = ExchangeStatus.COMPLETED))
+    fun completeExchange(exchange: Exchange, userId: Long) = viewModelScope.launch {
+        repository.updateExchange(
+            exchange.copy(status = ExchangeStatus.COMPLETED)
+        )
+
+        loadUserExchanges(userId)
     }
 
-    fun cancelExchange(exchange: Exchange) = viewModelScope.launch {
-        repository.updateExchange(exchange.copy(status = ExchangeStatus.CANCELLED))
+    fun cancelExchange(exchange: Exchange, userId: Long) = viewModelScope.launch {
+        repository.updateExchange(
+            exchange.copy(status = ExchangeStatus.CANCELLED)
+        )
+
+        loadUserExchanges(userId)
     }
 }

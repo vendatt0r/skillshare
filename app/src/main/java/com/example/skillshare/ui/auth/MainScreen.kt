@@ -1,8 +1,8 @@
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.filled.List
 import androidx.compose.material.icons.filled.List
 import androidx.compose.material.icons.filled.Person
+import androidx.compose.material.icons.filled.SwapHoriz
 import androidx.compose.material3.Icon
 import androidx.compose.material3.NavigationBar
 import androidx.compose.material3.NavigationBarItem
@@ -18,24 +18,37 @@ import com.example.skillshare.ui.ads.AdsScreen
 import com.example.skillshare.ui.ads.AdsViewModel
 import com.example.skillshare.ui.auth.AuthViewModel
 import com.example.skillshare.ui.auth.ProfileScreen
+import com.example.skillshare.ui.exchange.IncomingExchangesScreen
+import com.example.skillshare.ui.exchange.ExchangeViewModel
 
 @Composable
 fun MainScreen(
-    navController: NavHostController,   // 👈 добавить
+    navController: NavHostController,
     adsViewModel: AdsViewModel,
     authViewModel: AuthViewModel,
+    exchangeViewModel: ExchangeViewModel,   // 👈 ДОБАВИЛИ
     onLogout: () -> Unit
 ) {
+
     val innerNavController = rememberNavController()
 
     Scaffold(
         bottomBar = {
+
             NavigationBar {
+
                 NavigationBarItem(
                     selected = false,
                     onClick = { innerNavController.navigate("ads") },
                     icon = { Icon(Icons.Default.List, null) },
                     label = { Text("Объявления") }
+                )
+
+                NavigationBarItem(
+                    selected = false,
+                    onClick = { innerNavController.navigate("exchanges") },
+                    icon = { Icon(Icons.Default.SwapHoriz, null) },
+                    label = { Text("Обмены") }
                 )
 
                 NavigationBarItem(
@@ -55,6 +68,7 @@ fun MainScreen(
         ) {
 
             composable("ads") {
+
                 AdsScreen(
                     viewModel = adsViewModel,
                     authViewModel = authViewModel,
@@ -67,7 +81,19 @@ fun MainScreen(
                 )
             }
 
+            composable("exchanges") {
+
+                IncomingExchangesScreen(
+                    exchangeViewModel = exchangeViewModel,
+                    authViewModel = authViewModel,
+                    onOpenChat = { exchangeId ->
+                        navController.navigate("chat/$exchangeId")
+                    }
+                )
+            }
+
             composable("profile") {
+
                 ProfileScreen(
                     authViewModel = authViewModel,
                     adsViewModel = adsViewModel,

@@ -10,10 +10,14 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import com.example.skillshare.ui.ads.*
 import com.example.skillshare.ui.auth.*
+import com.example.skillshare.ui.chat.ExchangeChatScreen
 import com.example.skillshare.ui.exchange.ExchangeRepository
 import com.example.skillshare.ui.exchange.ExchangeViewModel
 import com.example.skillshare.ui.exchange.ExchangeViewModelFactory
-
+import com.example.skillshare.ui.exchange.IncomingExchangesScreen
+import com.example.skillshare.ui.chat.ChatRepository
+import com.example.skillshare.ui.chat.ChatViewModel
+import com.example.skillshare.ui.chat.ChatViewModelFactory
 @Composable
 fun NavGraph() {
 
@@ -28,7 +32,7 @@ fun NavGraph() {
     // Repositories
     val adsRepository = remember { AdsRepository(database.adDao()) }
     val exchangeRepository = remember { ExchangeRepository(database.exchangeDao()) }
-
+    val chatRepository = remember { ChatRepository(database.chatDao()) }
     // ViewModels
     val adsViewModel: AdsViewModel = viewModel(
         factory = AdsViewModelFactory(adsRepository)
@@ -41,7 +45,9 @@ fun NavGraph() {
     val exchangeViewModel: ExchangeViewModel = viewModel(
         factory = ExchangeViewModelFactory(exchangeRepository)
     )
-
+    val chatViewModel: ChatViewModel = viewModel(
+        factory = ChatViewModelFactory(chatRepository)
+    )
     // 🔥 Следим за текущим пользователем
     val currentUser by authViewModel.currentUser.collectAsState()
     LaunchedEffect(currentUser?.id) {
@@ -85,6 +91,7 @@ fun NavGraph() {
                 navController = navController,
                 adsViewModel = adsViewModel,
                 authViewModel = authViewModel,
+                exchangeViewModel = exchangeViewModel,
                 onLogout = {
                     navController.navigate("login") {
                         popUpTo("main") { inclusive = true }
@@ -130,6 +137,28 @@ fun NavGraph() {
                 exchangeViewModel = exchangeViewModel, // ✅ Передаём сюда
                 onBack = { navController.popBackStack() },
                 onEdit = { navController.navigate("editAd/$adId") }
+            )
+        }
+        composable("exchanges") {
+
+            IncomingExchangesScreen(
+                exchangeViewModel = exchangeViewModel,
+                authViewModel = authViewModel,
+                onOpenChat = { exchangeId ->
+                    navController.navigate("chat/$exchangeId")
+                }
+            )
+        }
+        composable("chat/{exchangeId}") { backStackEntry ->
+
+            val exchangeId =
+                backStackEntry.arguments?.getString("exchangeId")?.toLongOrNull() ?: 0L
+
+            ExchangeChatScreen(
+                exchangeId = exchangeId,
+                chatViewModel = chatViewModel,
+                authViewModel = authViewModel,
+                onBack = { navController.popBackStack() }  // 🔹 кнопка выхода работает
             )
         }
     }
