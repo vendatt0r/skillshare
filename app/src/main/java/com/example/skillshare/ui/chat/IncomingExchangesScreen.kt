@@ -4,6 +4,7 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
@@ -26,8 +27,13 @@ fun IncomingExchangesScreen(
         currentUser?.id?.let { exchangeViewModel.loadUserExchanges(it) }
     }
 
-    LazyColumn {
-        // Показываем все PENDING, ACCEPTED, COMPLETING, COMPLETED; CANCELLED не показываем
+    LazyColumn(
+        modifier = Modifier
+            .fillMaxSize()
+            .background(Color(0xFF070A13))
+            .padding(vertical = 8.dp)
+    ) {
+
         val filteredExchanges = exchanges.filter {
             (it.toUserId == currentUser?.id || it.fromUserId == currentUser?.id) &&
                     it.status != ExchangeStatus.CANCELLED
@@ -38,76 +44,111 @@ fun IncomingExchangesScreen(
             Card(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(8.dp)
+                    .padding(horizontal = 16.dp, vertical = 6.dp),
+                shape = RoundedCornerShape(8.dp),
+                colors = CardDefaults.cardColors(containerColor = Color(0xFF1E1E1E))
             ) {
                 Column(modifier = Modifier.padding(16.dp)) {
 
                     // 🔹 Статус с цветной меткой
                     val (statusText, statusColor) = when (exchange.status) {
-                        ExchangeStatus.PENDING -> "Pending" to Color.Yellow
-                        ExchangeStatus.ACCEPTED -> "Accepted" to Color.Green
+                        ExchangeStatus.PENDING -> "Ожидает ответа" to Color.Yellow
+                        ExchangeStatus.ACCEPTED -> "Принят" to Color(0xFF00E676)
                         ExchangeStatus.COMPLETING -> "Ожидает подтверждения" to Color.Cyan
-                        ExchangeStatus.COMPLETED -> "Completed" to Color.Gray
+                        ExchangeStatus.COMPLETED -> "Завершён" to Color.Gray
                         else -> "" to Color.Transparent
                     }
 
                     Row(verticalAlignment = androidx.compose.ui.Alignment.CenterVertically) {
                         Text(
                             text = statusText,
-                            color = Color.White,
+                            color = Color.Black,
                             modifier = Modifier
-                                .background(statusColor)
+                                .background(statusColor, RoundedCornerShape(4.dp))
                                 .padding(horizontal = 8.dp, vertical = 4.dp)
                         )
 
-                        Spacer(modifier = Modifier.width(8.dp))
+                        Spacer(modifier = Modifier.width(12.dp))
 
                         Text(
-                            text = "Обмен с пользователем ${if (exchange.fromUserId == currentUser?.id) exchange.toUserId else exchange.fromUserId}"
+                            text = "Обмен с пользователем ${if (exchange.fromUserId == currentUser?.id) exchange.toUserId else exchange.fromUserId}",
+                            color = Color.White
                         )
                     }
 
-                    Spacer(modifier = Modifier.height(8.dp))
+                    Spacer(modifier = Modifier.height(12.dp))
 
                     // 🔹 Кнопки действий
                     when (exchange.status) {
                         ExchangeStatus.PENDING -> {
                             if (exchange.toUserId == currentUser?.id) {
                                 Row {
-                                    Button(onClick = {
-                                        currentUser?.let { user ->
-                                            exchangeViewModel.acceptExchange(exchange, user.id)
-                                        }
-                                        onOpenChat(exchange.id)
-                                    }) { Text("Принять") }
+                                    Button(
+                                        onClick = {
+                                            currentUser?.let { user ->
+                                                exchangeViewModel.acceptExchange(exchange, user.id)
+                                            }
+                                            onOpenChat(exchange.id)
+                                        },
+                                        modifier = Modifier.weight(1f),
+                                        colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF00E676)),
+                                        shape = RoundedCornerShape(8.dp)
+                                    ) {
+                                        Text("Принять", color = Color.Black)
+                                    }
 
                                     Spacer(modifier = Modifier.width(8.dp))
 
-                                    Button(onClick = {
-                                        currentUser?.let { user ->
-                                            exchangeViewModel.cancelExchange(exchange, user.id)
-                                        }
-                                    }) { Text("Отклонить") }
+                                    Button(
+                                        onClick = {
+                                            currentUser?.let { user ->
+                                                exchangeViewModel.cancelExchange(exchange, user.id)
+                                            }
+                                        },
+                                        modifier = Modifier.weight(1f),
+                                        colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF0BB7F5)),
+                                        shape = RoundedCornerShape(8.dp)
+                                    ) {
+                                        Text("Отклонить", color = Color.Black)
+                                    }
                                 }
                             }
                         }
 
                         ExchangeStatus.ACCEPTED, ExchangeStatus.COMPLETING -> {
                             Row {
-                                Button(onClick = { onOpenChat(exchange.id) }) { Text("Открыть чат") }
+                                Button(
+                                    onClick = { onOpenChat(exchange.id) },
+                                    modifier = Modifier.weight(1f),
+                                    colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF00E676)),
+                                    shape = RoundedCornerShape(8.dp)
+                                ) {
+                                    Text("Открыть чат", color = Color.Black)
+                                }
 
                                 Spacer(modifier = Modifier.width(8.dp))
 
-                                Button(onClick = {
-                                    currentUser?.let { user ->
-                                        exchangeViewModel.requestCompleteExchange(exchange, user.id)
-                                    }
-                                }) { Text("Завершить обмен") }
+                                Button(
+                                    onClick = {
+                                        currentUser?.let { user ->
+                                            exchangeViewModel.requestCompleteExchange(exchange, user.id)
+                                        }
+                                    },
+                                    modifier = Modifier.weight(1f),
+                                    colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF0BB7F5)),
+                                    shape = RoundedCornerShape(8.dp)
+                                ) {
+                                    Text("Завершить обмен", color = Color.Black)
+                                }
                             }
                         }
 
                         ExchangeStatus.COMPLETED -> {
-                            Text("Обмен завершён")
+                            Text(
+                                "Обмен завершён",
+                                color = Color.Gray,
+                                style = MaterialTheme.typography.bodyMedium
+                            )
                         }
 
                         else -> {}

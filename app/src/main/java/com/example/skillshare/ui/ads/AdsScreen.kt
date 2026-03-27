@@ -1,5 +1,6 @@
 package com.example.skillshare.ui.ads
 
+import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
@@ -14,6 +15,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.graphics.Color
 import com.example.skillshare.ui.auth.AuthViewModel
 
 @Composable
@@ -31,14 +33,29 @@ fun AdsScreen(
     var searchText by remember { mutableStateOf("") }
     var cityText by remember { mutableStateOf("") }
 
-    Column(modifier = Modifier.fillMaxSize().padding(16.dp)) {
+    Column(
+        modifier = Modifier
+            .fillMaxSize()
+            .background(Color(0xFF070A13))
+            .padding(16.dp)
+    ) {
+
         OutlinedTextField(
             value = searchText,
             onValueChange = {
                 searchText = it
                 viewModel.updateSearchQuery(it.ifBlank { null })
             },
-            label = { Text("Поиск по названию") },
+            label = { Text("Поиск", color = Color.White) },
+            colors = TextFieldDefaults.colors(
+                focusedContainerColor = Color(0xFF262628),
+                unfocusedContainerColor = Color(0xFF262628),
+                focusedTextColor = Color.White,
+                unfocusedTextColor = Color.White,
+                cursorColor = Color.White,
+                focusedIndicatorColor = Color(0xFF00E676),
+                unfocusedIndicatorColor = Color.Gray
+            ),
             modifier = Modifier.fillMaxWidth()
         )
 
@@ -50,14 +67,27 @@ fun AdsScreen(
                 cityText = it
                 viewModel.updateCityFilter(it.ifBlank { null })
             },
-            label = { Text("Фильтр по городу") },
+            label = { Text("Город", color = Color.White) },
+            colors = TextFieldDefaults.colors(
+                focusedContainerColor = Color(0xFF262628),
+                unfocusedContainerColor = Color(0xFF262628),
+                focusedTextColor = Color.White,
+                unfocusedTextColor = Color.White,
+                cursorColor = Color.White,
+                focusedIndicatorColor = Color(0xFF00E676),
+                unfocusedIndicatorColor = Color.Gray
+            ),
             modifier = Modifier.fillMaxWidth()
         )
 
         Spacer(modifier = Modifier.height(16.dp))
 
-        Button(onClick = onCreateClick, modifier = Modifier.fillMaxWidth()) {
-            Text("Создать объявление")
+        Button(
+            onClick = onCreateClick,
+            colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF00E676)),
+            modifier = Modifier.fillMaxWidth()
+        ) {
+            Text("Создать объявление", color = Color.Black)
         }
 
         Spacer(modifier = Modifier.height(16.dp))
@@ -80,22 +110,23 @@ fun AdItem(
         modifier = Modifier
             .fillMaxWidth()
             .clickable { onClick() },
-        elevation = CardDefaults.cardElevation(4.dp)
+        colors = CardDefaults.cardColors(
+            containerColor = Color(0xFF262628)
+        )
     ) {
         Column(modifier = Modifier.padding(16.dp)) {
 
-            Text(ad.title, style = MaterialTheme.typography.titleMedium)
+            Text(ad.title, color = Color.White)
 
             Spacer(modifier = Modifier.height(4.dp))
 
-            Text(ad.description)
+            Text(ad.description, color = Color.LightGray)
 
             Spacer(modifier = Modifier.height(8.dp))
 
             Text(
                 "${ad.city} • ${ad.authorName}",
-                style = MaterialTheme.typography.bodySmall,
-                color = MaterialTheme.colorScheme.primary
+                color = Color(0xFF0BB7F5)
             )
         }
     }
