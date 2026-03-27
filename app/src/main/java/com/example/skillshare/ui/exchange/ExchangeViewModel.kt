@@ -19,12 +19,20 @@ class ExchangeViewModel(private val repository: ExchangeRepository) : ViewModel(
         }
     }
 
-    fun proposeExchange(adId: Long, fromUserId: Long, toUserId: Long) = viewModelScope.launch {
+    fun proposeExchange(
+        adId: Long,
+        fromUserId: Long,
+        toUserId: Long,
+        offerText: String // 👈 добавили
+    ) = viewModelScope.launch {
+
         val exchange = Exchange(
             adId = adId,
             fromUserId = fromUserId,
-            toUserId = toUserId
+            toUserId = toUserId,
+            offerText = offerText // 👈 сохраняем
         )
+
         repository.proposeExchange(exchange)
     }
 
@@ -36,12 +44,29 @@ class ExchangeViewModel(private val repository: ExchangeRepository) : ViewModel(
     }
 
     fun requestCompleteExchange(exchange: Exchange, userId: Long) = viewModelScope.launch {
-        val updatedExchange = when (exchange.status) {
-            ExchangeStatus.ACCEPTED -> exchange.copy(status = ExchangeStatus.COMPLETING)
-            ExchangeStatus.COMPLETING -> exchange.copy(status = ExchangeStatus.COMPLETED)
+
+        val updatedExchange = when (userId) {
+
+            exchange.fromUserId -> exchange.copy(
+                fromUserConfirmed = true
+            )
+
+            exchange.toUserId -> exchange.copy(
+                toUserConfirmed = true
+            )
+
             else -> return@launch
         }
-        repository.updateExchange(updatedExchange)
+
+        // 👇 Проверяем: оба подтвердили?
+        val finalExchange =
+            if (updatedExchange.fromUserConfirmed && updatedExchange.toUserConfirmed) {
+                updatedExchange.copy(status = ExchangeStatus.COMPLETED)
+            } else {
+                updatedExchange.copy(status = ExchangeStatus.COMPLETING)
+            }
+
+        repository.updateExchange(finalExchange)
         loadUserExchanges(userId)
     }
 

@@ -14,7 +14,7 @@ import com.example.skillshare.ui.exchange.ExchangeDao
 import com.example.skillshare.ui.chat.ChatMessage
 @Database(
     entities = [AdEntity::class, User::class, Exchange::class, ChatMessage::class],
-    version = 19
+    version = 21
 )
 abstract class AppDatabase : RoomDatabase() {
 

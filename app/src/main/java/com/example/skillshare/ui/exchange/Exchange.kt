@@ -10,6 +10,12 @@ data class Exchange(
     val adId: Long,
     val fromUserId: Long,
     val toUserId: Long,
+
+    val offerText: String,
+
+    val fromUserConfirmed: Boolean = false, // 👈 НОВОЕ
+    val toUserConfirmed: Boolean = false,   // 👈 НОВОЕ
+
     val status: ExchangeStatus = ExchangeStatus.PENDING
 )
 

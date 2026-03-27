@@ -26,6 +26,8 @@ fun AdDetailsScreen(
     val snackbarHostState = remember { SnackbarHostState() }
     val coroutineScope = rememberCoroutineScope()
 
+    var offerText by remember { mutableStateOf("") } // 👈 текст предложения
+
     Scaffold(
         containerColor = Color(0xFF070A13),
         snackbarHost = { SnackbarHost(snackbarHostState) }
@@ -42,7 +44,6 @@ fun AdDetailsScreen(
                     .padding(24.dp)
             ) {
 
-                // 🔹 Заголовок объявления
                 Text(
                     text = adItem.title,
                     style = MaterialTheme.typography.headlineMedium,
@@ -51,32 +52,28 @@ fun AdDetailsScreen(
 
                 Spacer(modifier = Modifier.height(16.dp))
 
-                // 🔹 Описание
                 Text(
                     text = adItem.description,
-                    color = Color.White,
-                    style = MaterialTheme.typography.bodyMedium
+                    color = Color.White
                 )
 
                 Spacer(modifier = Modifier.height(16.dp))
 
-                // 🔹 Информация об авторе и городе
                 Text(
                     text = "${adItem.city} • ${adItem.authorName}",
-                    style = MaterialTheme.typography.bodyMedium,
                     color = Color(0xFF00E676)
                 )
 
                 Spacer(modifier = Modifier.height(24.dp))
 
                 if (isOwner) {
-                    // 🔹 Кнопка редактирования
+
                     Button(
                         onClick = onEdit,
                         modifier = Modifier
                             .fillMaxWidth()
                             .height(50.dp),
-                        colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF00E676)),
+                        colors = ButtonDefaults.buttonColors(Color(0xFF00E676)),
                         shape = RoundedCornerShape(8.dp)
                     ) {
                         Text("Редактировать", color = Color.Black)
@@ -84,7 +81,6 @@ fun AdDetailsScreen(
 
                     Spacer(modifier = Modifier.height(12.dp))
 
-                    // 🔹 Кнопка удаления
                     Button(
                         onClick = {
                             adsViewModel.deleteAd(adItem)
@@ -93,32 +89,62 @@ fun AdDetailsScreen(
                         modifier = Modifier
                             .fillMaxWidth()
                             .height(50.dp),
-                        colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.error),
+                        colors = ButtonDefaults.buttonColors(MaterialTheme.colorScheme.error),
                         shape = RoundedCornerShape(8.dp)
                     ) {
                         Text("Удалить", color = Color.White)
                     }
 
                 } else {
-                    // 🔹 Кнопка предложения обмена
+
+                    // 🔹 ВВОД ПРЕДЛОЖЕНИЯ
+                    OutlinedTextField(
+                        value = offerText,
+                        onValueChange = { offerText = it },
+                        label = { Text("Что вы предлагаете?") },
+                        modifier = Modifier.fillMaxWidth(),
+                        colors = OutlinedTextFieldDefaults.colors(
+                            focusedContainerColor = Color(0xFF262628),
+                            unfocusedContainerColor = Color(0xFF262628),
+                            focusedTextColor = Color.White,
+                            unfocusedTextColor = Color.White,
+                            cursorColor = Color.White,
+                            focusedBorderColor = Color(0xFF00E676),
+                            unfocusedBorderColor = Color.Gray
+                        )
+                    )
+
+                    Spacer(modifier = Modifier.height(16.dp))
+
                     Button(
                         onClick = {
                             currentUser?.let { user ->
+
+                                if (offerText.isBlank()) {
+                                    coroutineScope.launch {
+                                        snackbarHostState.showSnackbar("Опишите предложение")
+                                    }
+                                    return@let
+                                }
+
                                 exchangeViewModel.proposeExchange(
                                     adId = adItem.id,
                                     fromUserId = user.id,
-                                    toUserId = adItem.userId
+                                    toUserId = adItem.userId,
+                                    offerText = offerText // 👈 передаём
                                 )
 
                                 coroutineScope.launch {
                                     snackbarHostState.showSnackbar("Обмен предложен!")
                                 }
+
+                                offerText = ""
                             }
                         },
                         modifier = Modifier
                             .fillMaxWidth()
                             .height(50.dp),
-                        colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF00E676)),
+                        colors = ButtonDefaults.buttonColors(Color(0xFF00E676)),
                         shape = RoundedCornerShape(8.dp)
                     ) {
                         Text("Предложить обмен", color = Color.Black)
@@ -127,7 +153,6 @@ fun AdDetailsScreen(
 
                 Spacer(modifier = Modifier.height(16.dp))
 
-                // 🔹 Кнопка назад
                 TextButton(onClick = onBack) {
                     Text("Назад", color = Color(0xFF0BB7F5))
                 }

@@ -22,7 +22,6 @@ fun IncomingExchangesScreen(
     val currentUser by authViewModel.currentUser.collectAsState()
     val exchanges by exchangeViewModel.userExchanges.collectAsState()
 
-    // Загружаем обмены для текущего пользователя
     LaunchedEffect(currentUser?.id) {
         currentUser?.id?.let { exchangeViewModel.loadUserExchanges(it) }
     }
@@ -41,6 +40,10 @@ fun IncomingExchangesScreen(
 
         items(filteredExchanges) { exchange ->
 
+            val alreadyConfirmed =
+                (currentUser?.id == exchange.fromUserId && exchange.fromUserConfirmed) ||
+                        (currentUser?.id == exchange.toUserId && exchange.toUserConfirmed)
+
             Card(
                 modifier = Modifier
                     .fillMaxWidth()
@@ -50,7 +53,6 @@ fun IncomingExchangesScreen(
             ) {
                 Column(modifier = Modifier.padding(16.dp)) {
 
-                    // 🔹 Статус с цветной меткой
                     val (statusText, statusColor) = when (exchange.status) {
                         ExchangeStatus.PENDING -> "Ожидает ответа" to Color.Yellow
                         ExchangeStatus.ACCEPTED -> "Принят" to Color(0xFF00E676)
@@ -71,15 +73,36 @@ fun IncomingExchangesScreen(
                         Spacer(modifier = Modifier.width(12.dp))
 
                         Text(
-                            text = "Обмен с пользователем ${if (exchange.fromUserId == currentUser?.id) exchange.toUserId else exchange.fromUserId}",
+                            text = "Обмен с пользователем ${
+                                if (exchange.fromUserId == currentUser?.id)
+                                    exchange.toUserId
+                                else
+                                    exchange.fromUserId
+                            }",
                             color = Color.White
                         )
                     }
 
                     Spacer(modifier = Modifier.height(12.dp))
 
-                    // 🔹 Кнопки действий
+                    Text(
+                        text = "Предложение:",
+                        color = Color.Gray,
+                        style = MaterialTheme.typography.bodySmall
+                    )
+
+                    Spacer(modifier = Modifier.height(4.dp))
+
+                    Text(
+                        text = exchange.offerText,
+                        color = Color.White,
+                        style = MaterialTheme.typography.bodyMedium
+                    )
+
+                    Spacer(modifier = Modifier.height(12.dp))
+
                     when (exchange.status) {
+
                         ExchangeStatus.PENDING -> {
                             if (exchange.toUserId == currentUser?.id) {
                                 Row {
@@ -134,12 +157,29 @@ fun IncomingExchangesScreen(
                                             exchangeViewModel.requestCompleteExchange(exchange, user.id)
                                         }
                                     },
+                                    enabled = !alreadyConfirmed, // 👈 фикс
                                     modifier = Modifier.weight(1f),
                                     colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF0BB7F5)),
                                     shape = RoundedCornerShape(8.dp)
                                 ) {
-                                    Text("Завершить обмен", color = Color.Black)
+                                    Text(
+                                        if (alreadyConfirmed)
+                                            "Ожидание второго"
+                                        else
+                                            "Завершить обмен",
+                                        color = Color.Black
+                                    )
                                 }
+                            }
+
+                            // 👇 Подсказка
+                            if (exchange.status == ExchangeStatus.COMPLETING) {
+                                Spacer(modifier = Modifier.height(8.dp))
+                                Text(
+                                    text = "Ожидается подтверждение второго участника",
+                                    color = Color.Cyan,
+                                    style = MaterialTheme.typography.bodySmall
+                                )
                             }
                         }
 
