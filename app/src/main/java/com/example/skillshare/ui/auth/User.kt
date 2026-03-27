@@ -8,5 +8,5 @@ data class User(
     @PrimaryKey(autoGenerate = true)
     val id: Long = 0,
     val username: String,
-    val password: String
+    val passwordHash: String // 👈 теперь хэш
 )

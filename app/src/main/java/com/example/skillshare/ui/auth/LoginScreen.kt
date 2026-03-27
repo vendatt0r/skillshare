@@ -10,6 +10,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.unit.dp
 import com.example.skillshare.R
 
@@ -22,6 +23,14 @@ fun LoginScreen(
     var username by remember { mutableStateOf("") }
     var password by remember { mutableStateOf("") }
     val authState by authViewModel.authState.collectAsState()
+
+    // ✅ правильный запуск при успешном логине
+    LaunchedEffect(authState) {
+        if (authState == true) {
+            onLoginSuccess()
+            authViewModel.reset()
+        }
+    }
 
     Column(
         modifier = Modifier
@@ -48,10 +57,12 @@ fun LoginScreen(
 
         Spacer(modifier = Modifier.height(16.dp))
 
+        // 🔹 Логин
         OutlinedTextField(
             value = username,
             onValueChange = { username = it },
             label = { Text("Логин") },
+            singleLine = true,
             colors = TextFieldDefaults.colors(
                 focusedContainerColor = Color(0xFF262628),
                 unfocusedContainerColor = Color(0xFF262628),
@@ -66,10 +77,13 @@ fun LoginScreen(
 
         Spacer(modifier = Modifier.height(8.dp))
 
+        // 🔹 Пароль (исправлено)
         OutlinedTextField(
             value = password,
             onValueChange = { password = it },
             label = { Text("Пароль") },
+            singleLine = true,
+            visualTransformation = PasswordVisualTransformation(), // ✅ скрытие
             colors = TextFieldDefaults.colors(
                 focusedContainerColor = Color(0xFF262628),
                 unfocusedContainerColor = Color(0xFF262628),
@@ -84,8 +98,10 @@ fun LoginScreen(
 
         Spacer(modifier = Modifier.height(16.dp))
 
+        // 🔹 Кнопка входа
         Button(
             onClick = { authViewModel.login(username, password) },
+            enabled = username.isNotBlank() && password.isNotBlank(), // ✅
             colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF00E676)),
             modifier = Modifier
                 .fillMaxWidth()
@@ -101,19 +117,13 @@ fun LoginScreen(
             Text("Регистрация", color = Color(0xFF0BB7F5))
         }
 
-        authState?.let { success ->
-            if (!success) {
-                Text(
-                    "Неверный логин или пароль",
-                    color = MaterialTheme.colorScheme.error,
-                    modifier = Modifier.padding(top = 16.dp)
-                )
-            } else {
-                LaunchedEffect(Unit) {
-                    onLoginSuccess()
-                    authViewModel.reset()
-                }
-            }
+        // 🔹 Ошибка
+        if (authState == false) {
+            Text(
+                "Неверный логин или пароль",
+                color = MaterialTheme.colorScheme.error,
+                modifier = Modifier.padding(top = 16.dp)
+            )
         }
     }
 }

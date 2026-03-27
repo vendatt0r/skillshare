@@ -14,35 +14,53 @@ class AuthViewModel(private val userDao: UserDao) : ViewModel() {
     private val _currentUser = MutableStateFlow<User?>(null)
     val currentUser: StateFlow<User?> = _currentUser
 
+    // 🔹 LOGIN
     fun login(username: String, password: String) {
         viewModelScope.launch {
-            val user = userDao.login(username, password)
-            _currentUser.value = user
-            _authState.value = user != null
-        }
-    }
 
-    fun register(username: String, password: String) {
-        viewModelScope.launch {
+            if (username.isBlank() || password.isBlank()) {
+                _authState.value = false
+                return@launch
+            }
 
-            val exists = userDao.userExists(username) > 0
+            val user = userDao.getUserByUsername(username)
 
-            if (!exists) {
+            val hashed = PasswordUtils.hash(password)
 
-                val user = User(
-                    username = username,
-                    password = password
-                )
-
-                val id = userDao.insert(user)
-
-                _currentUser.value = user.copy(id = id)
-
+            if (user != null && user.passwordHash == hashed) {
+                _currentUser.value = user
                 _authState.value = true
-
             } else {
                 _authState.value = false
             }
+        }
+    }
+
+    // 🔹 REGISTER
+    fun register(username: String, password: String) {
+        viewModelScope.launch {
+
+            if (username.length < 3 || password.length < 4) {
+                _authState.value = false
+                return@launch
+            }
+
+            val exists = userDao.userExists(username) > 0
+
+            if (exists) {
+                _authState.value = false
+                return@launch
+            }
+
+            val user = User(
+                username = username,
+                passwordHash = PasswordUtils.hash(password)
+            )
+
+            val id = userDao.insert(user)
+
+            _currentUser.value = user.copy(id = id)
+            _authState.value = true
         }
     }
 
